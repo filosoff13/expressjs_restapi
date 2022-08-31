@@ -18,7 +18,26 @@ app.get('/api/posts', (req, res) => {
             posts: posts
         }
     });
-})
+});
+
+app.get('/api/posts/:id', (req, res) => {
+    const id = req.params['id'] * 1;
+    const post = posts.find(el => el.id === id);
+
+    if (!post) {
+        return res.status(404).json({
+            status: "fail",
+            message: "invalid ID"
+        });
+    }
+    
+    res.status(200).json({
+        status: 'success',
+        data: {
+            post
+        }
+    });
+});
 
 app.post('/api/posts', (req, res) => {
     // console.log(req.body);
