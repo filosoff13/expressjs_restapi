@@ -2,6 +2,8 @@ const express = require('express');
 const fs = require('fs');
 const app = express();
 
+app.use(express.json());
+
 app.get('/', (req, res) => {
     res.status(200).json({message: 'Hello world!!!'});
 });
@@ -17,6 +19,23 @@ app.get('/api/posts', (req, res) => {
         }
     });
 })
+
+app.post('/api/posts', (req, res) => {
+    // console.log(req.body);
+
+    const newId = parseInt(posts[posts.length - 1].id) + 1;
+    const newPost = Object.assign({id: newId}, req.body);
+
+    posts.push(newPost);
+    fs.writeFile(`${__dirname}/data/posts.json`, JSON.stringify(posts), err => {
+        res.status(201).json({
+            status: "success",
+            data: {
+                post: newPost
+            }
+        })
+    });
+});
 
 app.get('/api/courses/:id', (req, res) => {
     res.send(req.params.id);
