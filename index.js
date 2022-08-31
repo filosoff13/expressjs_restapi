@@ -7,8 +7,15 @@ app.get('/', (req, res) => {
 });
 
 const posts = JSON.parse(fs.readFileSync(`${__dirname}/data/posts.json`));
+
 app.get('/api/posts', (req, res) => {
-    res.send([1, 2, 3]);
+    res.status(200).json({
+        status: 'success',
+        results: posts.length,
+        data: {
+            posts: posts
+        }
+    });
 })
 
 app.get('/api/courses/:id', (req, res) => {
