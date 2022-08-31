@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
 
 const posts = JSON.parse(fs.readFileSync(`${__dirname}/data/posts.json`));
 
-app.get('/api/posts', (req, res) => {
+const getAllPosts = (req, res) => {
     res.status(200).json({
         status: 'success',
         results: posts.length,
@@ -18,9 +18,8 @@ app.get('/api/posts', (req, res) => {
             posts: posts
         }
     });
-});
-
-app.get('/api/posts/:id', (req, res) => {
+};
+const getPost = (req, res) => {
     const id = req.params['id'] * 1;
     const post = posts.find(el => el.id === id);
 
@@ -37,11 +36,9 @@ app.get('/api/posts/:id', (req, res) => {
             post
         }
     });
-});
+};
 
-app.patch('/api/posts/:id', (req, res) => {
-    // const post = posts.find(el => el.id === id);
-
+const updatePost = (req, res) => {
     if (req.params.id * 1 > posts.length) {
         return res.status(404).json({
             status: "fail",
@@ -55,9 +52,9 @@ app.patch('/api/posts/:id', (req, res) => {
             post: "<upd here .."
         }
     });
-});
+};
 
-app.delete('/api/posts/:id', (req, res) => {
+const deletePost = (req, res) => {
     if (req.params.id * 1 > posts.length) {
         return res.status(404).json({
             status: "fail",
@@ -69,11 +66,8 @@ app.delete('/api/posts/:id', (req, res) => {
         status: 'success',
         data: null
     });
-});
-
-app.post('/api/posts', (req, res) => {
-    // console.log(req.body);
-
+};
+const createPost = (req, res) => {
     const newId = parseInt(posts[posts.length - 1].id) + 1;
     const newPost = Object.assign({id: newId}, req.body);
 
@@ -86,12 +80,16 @@ app.post('/api/posts', (req, res) => {
             }
         })
     });
-});
+};
 
-app.get('/api/courses/:id', (req, res) => {
-    res.send(req.params.id);
-});
+app.route('/api/posts').get(getAllPosts).post(createPost);
+app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
+
+// app.get('/api/posts', getAllPosts);
+// app.get('/api/posts/:id', getPost);
+// app.patch('/api/posts/:id', updatePost);
+// app.delete('/api/posts/:id', deletePost);
+// app.post('/api/posts', createPost);
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
-
