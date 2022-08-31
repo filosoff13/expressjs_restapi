@@ -39,6 +39,38 @@ app.get('/api/posts/:id', (req, res) => {
     });
 });
 
+app.patch('/api/posts/:id', (req, res) => {
+    // const post = posts.find(el => el.id === id);
+
+    if (req.params.id * 1 > posts.length) {
+        return res.status(404).json({
+            status: "fail",
+            message: "invalid ID"
+        });
+    }
+    
+    res.status(200).json({
+        status: 'success',
+        data: {
+            post: "<upd here .."
+        }
+    });
+});
+
+app.delete('/api/posts/:id', (req, res) => {
+    if (req.params.id * 1 > posts.length) {
+        return res.status(404).json({
+            status: "fail",
+            message: "invalid ID"
+        });
+    }
+    
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+});
+
 app.post('/api/posts', (req, res) => {
     // console.log(req.body);
 
