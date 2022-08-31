@@ -1,11 +1,13 @@
 const express = require('express');
+const fs = require('fs');
 const app = express();
 
 app.get('/', (req, res) => {
-    res.send('Hello world!!!');
+    res.status(200).json({message: 'Hello world!!!'});
 });
 
-app.get('/api/courses', (req, res) => {
+const posts = JSON.parse(fs.readFileSync(`${__dirname}/data/posts.json`));
+app.get('/api/posts', (req, res) => {
     res.send([1, 2, 3]);
 })
 
