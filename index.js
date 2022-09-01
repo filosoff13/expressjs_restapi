@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
+const sql = require(`${__dirname}/models/db.js`);
 
 app.use(express.json());
 
@@ -19,6 +20,7 @@ const getAllPosts = (req, res) => {
         }
     });
 };
+
 const getPost = (req, res) => {
     const id = req.params['id'] * 1;
     const post = posts.find(el => el.id === id);
@@ -84,12 +86,8 @@ const createPost = (req, res) => {
 
 app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
-
-// app.get('/api/posts', getAllPosts);
-// app.get('/api/posts/:id', getPost);
-// app.patch('/api/posts/:id', updatePost);
-// app.delete('/api/posts/:id', deletePost);
-// app.post('/api/posts', createPost);
+// app.route('/api/users').get(getAllUsers).post(createUser);
+// app.route('/api/')
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
