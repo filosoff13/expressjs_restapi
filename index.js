@@ -2,15 +2,15 @@ const express = require('express');
 const fs = require('fs');
 const app = express();
 // const sql = require(`./models/db.js`);
-const { sequelize } = require(`./models`);
+const { sequelize, User } = require(`./models`);
 
 app.use(express.json());
 
-async function main(){
-    await sequelize.sync();
-}
+// async function main(){
+//     await sequelize.sync();
+// }
 
-main();
+// main();
 // constructor
 const Post = function(post) {
     this.post = post.post;
@@ -131,10 +131,22 @@ const createPost = (req, res) => {
     });
 };
 
+const createUser = async(req, res) => {
+    const { name, email, role } = req.body;
+
+    try{
+        const user = await User.create({ name, email, role });
+
+        return res.json(user);
+    } catch(err){
+        console.log(err);
+        return res.status(500).json(err);
+    }
+}
+
 app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
-// app.route('/api/users').get(getAllUsers).post(createUser);
-// app.route('/api/')
+app.route('/api/users').post(createUser);
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
