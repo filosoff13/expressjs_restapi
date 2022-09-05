@@ -142,11 +142,22 @@ const createUser = async(req, res) => {
         console.log(err);
         return res.status(500).json(err);
     }
-}
+};
+
+const getUsers = async (req, res) => {
+    try {
+      const users = await User.findAll();
+  
+      return res.json(users);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ error: 'Something went wrong' });
+    }
+  };
 
 app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
-app.route('/api/users').post(createUser);
+app.route('/api/users').get(getUsers).post(createUser);
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
