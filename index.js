@@ -1,42 +1,62 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const sql = require(`${__dirname}/models/db.js`);
+const sql = require(`./models/db.js`);
 
 app.use(express.json());
+
+// constructor
+const Post = function(post) {
+    this.post = post.post;
+    this.user_id = post.user_id;
+  };
 
 app.get('/', (req, res) => {
     res.status(200).json({message: 'Hello world!!!'});
 });
 
-const posts = JSON.parse(fs.readFileSync(`${__dirname}/data/posts.json`));
-
 const getAllPosts = (req, res) => {
-    res.status(200).json({
+    let query = "SELECT * FROM posts";
+
+    // if (post) {
+    //   query += ` WHERE title LIKE '%${post}%'`;
+    // }
+  
+    sql.query(query, (err, result) => {
+      if (err) {
+        console.log("error: ", err);
+        return;
+      }
+  
+        res.status(200).json({
         status: 'success',
-        results: posts.length,
+        results: result.length,
         data: {
-            posts: posts
+            posts: result
         }
     });
-};
+    });
+  };
 
 const getPost = (req, res) => {
     const id = req.params['id'] * 1;
-    const post = posts.find(el => el.id === id);
+    let query = `SELECT * FROM posts WHERE id = '%${id}%'`;
 
-    if (!post) {
-        return res.status(404).json({
+    sql.query(query, (err, result) => {
+        if (err || result.length === 0) {
+          console.log("error: ", err);
+          return res.status(404).json({
             status: "fail",
             message: "invalid ID"
         });
-    }
+        }
     
-    res.status(200).json({
+        res.status(200).json({
         status: 'success',
         data: {
-            post
+            posts: result
         }
+      });
     });
 };
 
@@ -69,8 +89,29 @@ const deletePost = (req, res) => {
         data: null
     });
 };
+
 const createPost = (req, res) => {
-    const newId = parseInt(posts[posts.length - 1].id) + 1;
+    // const id = req.params['id'] * 1;
+    let query = `INSERT INTO posts values`;
+
+    sql.query(query, (err, result) => {
+        if (err) {
+          console.log("error: ", err);
+          return res.status(404).json({
+            status: "fail",
+            message: "something went wrong..."
+        });
+        }
+    
+        res.status(200).json({
+        status: 'success',
+        data: {
+            posts: result
+        }
+      });
+    });
+
+
     const newPost = Object.assign({id: newId}, req.body);
 
     posts.push(newPost);
