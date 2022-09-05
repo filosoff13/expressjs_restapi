@@ -1,10 +1,16 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const sql = require(`./models/db.js`);
+// const sql = require(`./models/db.js`);
+const { sequelize } = require(`./models`);
 
 app.use(express.json());
 
+async function main(){
+    await sequelize.sync();
+}
+
+main();
 // constructor
 const Post = function(post) {
     this.post = post.post;
@@ -22,42 +28,42 @@ const getAllPosts = (req, res) => {
     //   query += ` WHERE title LIKE '%${post}%'`;
     // }
   
-    sql.query(query, (err, result) => {
-      if (err) {
-        console.log("error: ", err);
-        return;
-      }
+    // sql.query(query, (err, result) => {
+    //   if (err) {
+    //     console.log("error: ", err);
+    //     return;
+    //   }
   
-        res.status(200).json({
-        status: 'success',
-        results: result.length,
-        data: {
-            posts: result
-        }
-    });
-    });
+    //     res.status(200).json({
+    //     status: 'success',
+    //     results: result.length,
+    //     data: {
+    //         posts: result
+    //     }
+    // });
+    // });
   };
 
 const getPost = (req, res) => {
-    const id = req.params['id'] * 1;
-    let query = `SELECT * FROM posts WHERE id = '%${id}%'`;
+    // const id = req.params['id'] * 1;
+    // let query = `SELECT * FROM posts WHERE id = '%${id}%'`;
 
-    sql.query(query, (err, result) => {
-        if (err || result.length === 0) {
-          console.log("error: ", err);
-          return res.status(404).json({
-            status: "fail",
-            message: "invalid ID"
-        });
-        }
+    // sql.query(query, (err, result) => {
+    //     if (err || result.length === 0) {
+    //       console.log("error: ", err);
+    //       return res.status(404).json({
+    //         status: "fail",
+    //         message: "invalid ID"
+    //     });
+    //     }
     
-        res.status(200).json({
-        status: 'success',
-        data: {
-            posts: result
-        }
-      });
-    });
+    //     res.status(200).json({
+    //     status: 'success',
+    //     data: {
+    //         posts: result
+    //     }
+    //   });
+    // });
 };
 
 const updatePost = (req, res) => {
@@ -94,22 +100,22 @@ const createPost = (req, res) => {
     // const id = req.params['id'] * 1;
     let query = `INSERT INTO posts values`;
 
-    sql.query(query, (err, result) => {
-        if (err) {
-          console.log("error: ", err);
-          return res.status(404).json({
-            status: "fail",
-            message: "something went wrong..."
-        });
-        }
+    // sql.query(query, (err, result) => {
+    //     if (err) {
+    //       console.log("error: ", err);
+    //       return res.status(404).json({
+    //         status: "fail",
+    //         message: "something went wrong..."
+    //     });
+    //     }
     
-        res.status(200).json({
-        status: 'success',
-        data: {
-            posts: result
-        }
-      });
-    });
+    //     res.status(200).json({
+    //     status: 'success',
+    //     data: {
+    //         posts: result
+    //     }
+    //   });
+    // });
 
 
     const newPost = Object.assign({id: newId}, req.body);
