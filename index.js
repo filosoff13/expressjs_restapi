@@ -12,10 +12,6 @@ app.use(express.json());
 
 // main();
 // constructor
-const Post = function(post) {
-    this.post = post.post;
-    this.user_id = post.user_id;
-  };
 
 app.get('/', (req, res) => {
     res.status(200).json({message: 'Hello world!!!'});
@@ -44,26 +40,19 @@ const getAllPosts = (req, res) => {
     // });
   };
 
-const getPost = (req, res) => {
-    // const id = req.params['id'] * 1;
-    // let query = `SELECT * FROM posts WHERE id = '%${id}%'`;
+const getPost = async (req, res) => {
+    const { userUuid, body } = req.body;
 
-    // sql.query(query, (err, result) => {
-    //     if (err || result.length === 0) {
-    //       console.log("error: ", err);
-    //       return res.status(404).json({
-    //         status: "fail",
-    //         message: "invalid ID"
-    //     });
-    //     }
-    
-    //     res.status(200).json({
-    //     status: 'success',
-    //     data: {
-    //         posts: result
-    //     }
-    //   });
-    // });
+    try {
+      const user = await User.findOne({ where: { uuid: userUuid } });
+  
+      const post = await Post.create({ body, userId: user.id });
+  
+      return res.json(post);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
 };
 
 const updatePost = (req, res) => {
@@ -153,11 +142,60 @@ const getUsers = async (req, res) => {
       console.log(err);
       return res.status(500).json({ error: 'Something went wrong' });
     }
-  };
+};
+
+const getUser = async (req, res) => {
+    const uuid = req.params.uuid
+    try {
+      const user = await User.findOne({
+        where: { uuid },
+        include: 'posts',
+      })
+  
+      return res.json(user)
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ error: 'Something went wrong' })
+    }
+};
+  
+const deleteUser = async (req, res) => {
+    const uuid = req.params.uuid;
+    try {
+      const user = await User.findOne({ where: { uuid } });
+  
+      await user.destroy();
+  
+      return res.json({ message: 'User deleted!' });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ error: 'Something went wrong' });
+    }
+};
+  
+const updateUser = async (req, res) => {
+    const uuid = req.params.uuid;
+    const { name, email, role } = req.body;
+    try {
+      const user = await User.findOne({ where: { uuid } });
+  
+      user.name = name;
+      user.email = email;
+      user.role = role;
+  
+      await user.save();
+  
+      return res.json(user);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ error: 'Something went wrong' });
+    }
+};
 
 app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
 app.route('/api/users').get(getUsers).post(createUser);
+app.route('/api/users/:uuid').get(getUser).patch(updateUser).delete(deleteUser);
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
