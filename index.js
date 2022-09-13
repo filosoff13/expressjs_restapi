@@ -180,12 +180,58 @@ const createComment = async(req, res) => {
   }
 };
 
+const getComment = async (req, res) => {
+  const uuid = req.params.id;
+
+  try {
+    const comment = await Comment.findOne({ where: { uuid } })
+
+    return res.json(comment)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
+};
+
+const updateComment = async(req, res) => {
+    const uuid = req.params.id;
+    const { body } = req.body;
+
+    try {
+      const comment = await Comment.findOne({ where: { uuid } });
+  
+      comment.body = body;
+  
+      await comment.save();
+  
+      return res.json(comment);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ error: 'Something went wrong' });
+    }
+};
+
+const deleteComment = async(req, res) => {
+  const uuid = req.params.id;
+    
+  try {
+    const comment = await Comment.findOne({ where: { uuid } });
+
+    await comment.destroy();
+
+    return res.json({ message: 'Post deleted!' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
 app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
 app.route('/api/users').get(getUsers).post(createUser);
 app.route('/api/users/:uuid').get(getUser).patch(updateUser).delete(deleteUser);
 app.route('/api/comments').get(getComments).post(createComment);
-// app.route('/api/comments/:uuid').get(getComment).patch(updateComment).delete(deleteComment);
+app.route('/api/comments/:uuid').get(getComment).patch(updateComment).delete(deleteComment);
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
