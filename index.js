@@ -21,48 +21,49 @@ const getAllPosts = async (req, res) => {
 };
 
 const getPost = async (req, res) => {
-    const { userUuid, body } = req.body;
+  const uuid = req.params.id;
+
+  try {
+    const post = await Post.findOne({ where: { uuid } })
+
+    return res.json(post)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
+};
+
+const updatePost = async(req, res) => {
+    const uuid = req.params.id;
+    const { body } = req.body;
 
     try {
-      const user = await User.findOne({ where: { uuid: userUuid } });
+      const post = await Post.findOne({ where: { uuid } });
   
-      const post = await Post.create({ body, userId: user.id });
+      post.body = body;
+  
+      await post.save();
   
       return res.json(post);
     } catch (err) {
       console.log(err);
-      return res.status(500).json(err);
+      return res.status(500).json({ error: 'Something went wrong' });
     }
 };
 
-const updatePost = (req, res) => {
-    if (req.params.id * 1 > posts.length) {
-        return res.status(404).json({
-            status: "fail",
-            message: "invalid ID"
-        });
-    }
+const deletePost = async(req, res) => {
+  const uuid = req.params.id;
     
-    res.status(200).json({
-        status: 'success',
-        data: {
-            post: "<upd here .."
-        }
-    });
-};
+  try {
+    const post = await Post.findOne({ where: { uuid } });
 
-const deletePost = (req, res) => {
-    if (req.params.id * 1 > posts.length) {
-        return res.status(404).json({
-            status: "fail",
-            message: "invalid ID"
-        });
-    }
-    
-    res.status(204).json({
-        status: 'success',
-        data: null
-    });
+    await post.destroy();
+
+    return res.json({ message: 'Post deleted!' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'Something went wrong' });
+  }
 };
 
 const createPost = async(req, res) => {
@@ -121,6 +122,7 @@ const getUser = async (req, res) => {
   
 const deleteUser = async (req, res) => {
     const uuid = req.params.uuid;
+
     try {
       const user = await User.findOne({ where: { uuid } });
   
