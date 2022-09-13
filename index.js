@@ -1,7 +1,7 @@
 const express = require('express');
-const fs = require('fs');
+// const fs = require('fs');
 const app = express();
-const { sequelize, User, Post } = require(`./models`);
+const { sequelize, User, Post, Comment } = require(`./models`);
 
 app.use(express.json());
 
@@ -154,10 +154,38 @@ const updateUser = async (req, res) => {
     }
 };
 
+const getComments = async (req, res) => {
+  try {
+    const comments = await Comment.findAll({ include: 'post' })
+
+    return res.json(comments)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json(err)
+  }
+};
+
+const createComment = async(req, res) => {
+  const { postUuid, body } = req.body;
+
+  try {
+    const post = await Post.findOne({ where: { uuid: postUuid } });
+
+    const comment = await Comment.create({ body, postId: post.id });
+
+    return res.json(comment);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
 app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
 app.route('/api/users').get(getUsers).post(createUser);
 app.route('/api/users/:uuid').get(getUser).patch(updateUser).delete(deleteUser);
+app.route('/api/comments').get(getComments).post(createComment);
+// app.route('/api/comments/:uuid').get(getComment).patch(updateComment).delete(deleteComment);
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listerning on port ${port}`));
