@@ -1,44 +1,24 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-// const sql = require(`./models/db.js`);
-const { sequelize, User } = require(`./models`);
+const { sequelize, User, Post } = require(`./models`);
 
 app.use(express.json());
-
-// async function main(){
-//     await sequelize.sync();
-// }
-
-// main();
-// constructor
 
 app.get('/', (req, res) => {
     res.status(200).json({message: 'Hello world!!!'});
 });
 
-const getAllPosts = (req, res) => {
-    let query = "SELECT * FROM posts";
+const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.findAll({ include: 'user' })
 
-    // if (post) {
-    //   query += ` WHERE title LIKE '%${post}%'`;
-    // }
-  
-    // sql.query(query, (err, result) => {
-    //   if (err) {
-    //     console.log("error: ", err);
-    //     return;
-    //   }
-  
-    //     res.status(200).json({
-    //     status: 'success',
-    //     results: result.length,
-    //     data: {
-    //         posts: result
-    //     }
-    // });
-    // });
-  };
+    return res.json(posts)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json(err)
+  }
+};
 
 const getPost = async (req, res) => {
     const { userUuid, body } = req.body;
@@ -85,39 +65,19 @@ const deletePost = (req, res) => {
     });
 };
 
-const createPost = (req, res) => {
-    // const id = req.params['id'] * 1;
-    let query = `INSERT INTO posts values`;
+const createPost = async(req, res) => {
+  const { userUuid, body } = req.body;
+  console.log(userUuid);
+  try {
+    const user = await User.findOne({ where: { uuid: userUuid } });
 
-    // sql.query(query, (err, result) => {
-    //     if (err) {
-    //       console.log("error: ", err);
-    //       return res.status(404).json({
-    //         status: "fail",
-    //         message: "something went wrong..."
-    //     });
-    //     }
-    
-    //     res.status(200).json({
-    //     status: 'success',
-    //     data: {
-    //         posts: result
-    //     }
-    //   });
-    // });
+    const post = await Post.create({ body, userId: user.id });
 
-
-    const newPost = Object.assign({id: newId}, req.body);
-
-    posts.push(newPost);
-    fs.writeFile(`${__dirname}/data/posts.json`, JSON.stringify(posts), err => {
-        res.status(201).json({
-            status: "success",
-            data: {
-                post: newPost
-            }
-        })
-    });
+    return res.json(post);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
 };
 
 const createUser = async(req, res) => {
@@ -149,7 +109,7 @@ const getUser = async (req, res) => {
     try {
       const user = await User.findOne({
         where: { uuid },
-        include: 'posts',
+        // include: 'posts',
       })
   
       return res.json(user)
