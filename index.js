@@ -2,6 +2,8 @@ const express = require('express');
 // const fs = require('fs');
 const app = express();
 const { sequelize, User, Post, Comment } = require(`./models`);
+const {authPage} = require('./middlewares/authServer');
+const auth = require('express-rbac');
 
 app.use(express.json());
 
@@ -226,7 +228,8 @@ const deleteComment = async(req, res) => {
   }
 };
 
-app.route('/api/posts').get(getAllPosts).post(createPost);
+app.route('/api/posts').get(getAllPosts, authPage(["Editor", "Admin"])).post(createPost, authPage(["Editor", "Admin"]));
+// app.route('/api/posts').get(getAllPosts).post(createPost);
 app.route('/api/posts/:id').get(getPost).patch(updatePost).delete(deletePost);
 app.route('/api/users').get(getUsers).post(createUser);
 app.route('/api/users/:uuid').get(getUser).patch(updateUser).delete(deleteUser);
