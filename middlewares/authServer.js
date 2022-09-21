@@ -4,6 +4,17 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 
+const authPage = (permissions) => {
+  return (req, res, next) => {
+    const role = req.body.role
+    if (permissions.includes(role)) {
+      next()
+    } else {
+      return res.status(401).json("You dont have permission!")
+    }
+  }
+}
+
 app.use(express.json());
 let refreshTokens = []
 
@@ -52,3 +63,5 @@ function authenticateToken(req, res, next) {
       next()
     })
   }
+
+module.exports = {authPage};
